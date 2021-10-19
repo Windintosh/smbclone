@@ -82,6 +82,30 @@ class Mario:
             self.y = 40
             self.jumping = 0
 
+class Goomba:
+    def __init__(self):
+        self.x, self.y = 240, 40
+        self.ax, self.ay = self.x, self.y
+        self.image = load_image('assets/goomba_sprite.png')
+        self.frame = 0
+        self.dir = -1
+        self.falling = 0
+        self.gravity = 11
+        self.yacc = 0
+
+    def draw(self):
+        if self.dir == 1:
+            self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
+
+        elif self.dir == -1:
+            self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+
+    def update(self):
+        self.x -= 5
+
+        self.frame = (self.frame + 1) % 2
+
+
 def handle_events():
     global running
     events = get_events()
@@ -121,11 +145,13 @@ def scroll():
             pass
         else:
             world.x -= 15
+            goomba.x -= 15
 
 
 open_canvas(320, 240)
 world = World()
 mario = Mario()
+goomba = Goomba()
 
 running = True;
 
@@ -135,6 +161,7 @@ while running:
 
     #game logic
     mario.update()
+    goomba.update()
     if mario.jumping == 1:
         mario.jump()
 
@@ -142,6 +169,7 @@ while running:
     clear_canvas()
     world.draw()
     mario.draw()
+    goomba.draw()
     scroll()
     update_canvas()
 
