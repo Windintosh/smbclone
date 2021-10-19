@@ -15,10 +15,15 @@ class World:
 class Mario:
     def __init__(self):
         self.x, self.y = 100, 40
+        self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/mario_sprite.png')
         self.frame = 0
         self.dir = 0
         self.prevdir = 0
+        self.jumping = 0
+        self.falling = 0
+        self.gravity = 11
+        self.yacc = 0
 
     def draw(self):
         if self.dir == 1:
@@ -38,18 +43,44 @@ class Mario:
             if self.x > 240:
                 self.x = 240
             else:
-                self.x += 5
+                if self.ax < self.x + 150:
+                    self.x += 5
+                    # self.ax += 5
+                    # self.x = (1 - 0.01) * self.x + 0.01 * self.ax
 
         elif self.dir == -1:
             if self.x < 0:
                 self.x = 0
             else:
-                self.x -= 5
+                if self.ax > self.x - 150:
+                    self.x -= 5
+                #     self.ax -= 5
+                #     self.x = (1 - 0.01) * self.x + 0.01 * self.ax
 
+        if self.y > 40 and self.jumping == 0:
+            self.falling = 1
+            self.yacc = self.gravity
+            self.y -= self.yacc
+            self.yacc += 1
+        else:
+            self.y = 40
+            self.yacc = self.gravity
+            self.falling = 0
 
         self.frame = (self.frame + 1) % 3
         delay(0.05)
 
+    def jump(self):
+        if self.y >= 40:
+            if self.jumping == 1:
+                self.yacc = self.gravity
+                while self.yacc > 0:
+                    self.y += self.yacc
+                    self.yacc -= 1
+
+        else:
+            self.y = 40
+            self.jumping = 0
 
 def handle_events():
     global running
@@ -64,6 +95,12 @@ def handle_events():
                 mario.dir -= 1
             elif event.key == SDLK_ESCAPE:
                 running = False
+            elif event.key == SDLK_z:
+                if mario.falling == 0:
+                    mario.jumping = 1
+                    mario.jump()
+                else:
+                    pass
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 mario.dir -= 1
@@ -71,6 +108,8 @@ def handle_events():
             elif event.key == SDLK_LEFT:
                 mario.dir += 1
                 mario.prevdir = -1
+            elif event.key == SDLK_z:
+                mario.jumping = 0
     pass
 
 
@@ -81,7 +120,7 @@ def scroll():
             world.x = -1320
             pass
         else:
-            world.x -= 5
+            world.x -= 15
 
 
 open_canvas(320, 240)
@@ -96,7 +135,8 @@ while running:
 
     #game logic
     mario.update()
-
+    if mario.jumping == 1:
+        mario.jump()
 
     #game drawing
     clear_canvas()
