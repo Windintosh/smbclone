@@ -22,7 +22,7 @@ class Mario:
         self.prevdir = 0
         self.jumping = 0
         self.falling = 0
-        self.gravity = 11
+        self.gravity = 12
         self.yacc = 0
         self.state = 1
         self.running = 0
@@ -200,11 +200,17 @@ def scroll():
             world.x = -1320
             pass
         else:
-            world.x -= 15
-            goomba.x -= 15
-            koopa.x -= 15
-            mario.x -= 5
-            # mario.ax = mario.x
+            if mario.running == 1:
+                world.x -= 15
+                goomba.x -= 15
+                koopa.x -= 15
+                mario.x -= 15
+                # mario.ax = mario.x
+            else:
+                world.x -= 5
+                goomba.x -= 5
+                koopa.x -= 5
+                mario.x -= 5
 
 
 open_canvas(320, 240)
