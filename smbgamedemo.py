@@ -30,21 +30,21 @@ class Mario:
     def draw(self):
         if self.dir == 1:
             if self.jumping or self.falling == 1:
-                self.image.clip_draw(64, 0, 16, 16, self.x, self.y)
+                self.image.clip_draw(64, 48, 16, 16, self.x, self.y) #y ->second var == 0 to make mario small fire mario, 48 to make mario normal
             else:
-                self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
+                self.image.clip_draw(self.frame * 16, 48, 16, 16, self.x, self.y)
 
         elif self.dir == -1:
             if self.jumping or self.falling == 1:
-                self.image.clip_composite_draw(64, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+                self.image.clip_composite_draw(64, 48, 16, 16, 0, 'h', self.x, self.y, 16, 16)
             else:
-                self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+                self.image.clip_composite_draw(self.frame * 16, 48, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
         else:
             if self.prevdir == 1 or self.prevdir == 0:
-                self.image.clip_draw(96, 0, 16, 16, self.x, self.y)
+                self.image.clip_draw(96, 48, 16, 16, self.x, self.y)
             elif self.prevdir == -1:
-                self.image.clip_composite_draw(96, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+                self.image.clip_composite_draw(96, 48, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
     def update(self):
         if self.x > 240:
