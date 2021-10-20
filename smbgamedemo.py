@@ -25,6 +25,7 @@ class Mario:
         self.gravity = 11
         self.yacc = 0
         self.state = 1
+        self.running = 0
 
     def draw(self):
         if self.dir == 1:
@@ -60,7 +61,10 @@ class Mario:
                 #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
                 #     else:
                 #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
-                self.x += 15
+                if self.running == 1:
+                    self.x += 15
+                else:
+                    self.x += 5
 
         elif self.dir == -1:
             if self.x < 0:
@@ -73,7 +77,10 @@ class Mario:
                 #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
                 #     else:
                 #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
-                self.x -= 15
+                if self.running == 1:
+                    self.x -= 15
+                else:
+                    self.x -= 5
         # else:
         #     self.x = (1 - 0.01) * self.x + 0.01 * self.ax
 
@@ -164,12 +171,14 @@ def handle_events():
                 mario.dir -= 1
             elif event.key == SDLK_ESCAPE:
                 running = False
-            elif event.key == SDLK_z:
+            elif event.key == SDLK_x:
                 if mario.falling == 0 and mario.jumping == 0:
                     mario.jumping = 1
                     mario.jump()
                 else:
                     pass
+            elif event.key == SDLK_z:
+                mario.running = 1
         elif event.type == SDL_KEYUP:
             if event.key == SDLK_RIGHT:
                 mario.dir -= 1
@@ -177,8 +186,10 @@ def handle_events():
             elif event.key == SDLK_LEFT:
                 mario.dir += 1
                 mario.prevdir = -1
-            elif event.key == SDLK_z:
+            elif event.key == SDLK_x:
                 mario.jumping = 0
+            elif event.key == SDLK_z:
+                mario.running = 0
     pass
 
 
@@ -193,7 +204,7 @@ def scroll():
             goomba.x -= 15
             koopa.x -= 15
             mario.x -= 5
-            mario.ax = mario.x
+            # mario.ax = mario.x
 
 
 open_canvas(320, 240)
