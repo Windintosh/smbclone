@@ -24,13 +24,20 @@ class Mario:
         self.falling = 0
         self.gravity = 11
         self.yacc = 0
+        self.state = 1
 
     def draw(self):
         if self.dir == 1:
-            self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
+            if self.jumping or self.falling == 1:
+                self.image.clip_draw(64, 0, 16, 16, self.x, self.y)
+            else:
+                self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
 
         elif self.dir == -1:
-            self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+            if self.jumping or self.falling == 1:
+                self.image.clip_composite_draw(64, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+            else:
+                self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
         else:
             if self.prevdir == 1 or self.prevdir == 0:
@@ -39,23 +46,36 @@ class Mario:
                 self.image.clip_composite_draw(96, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
     def update(self):
+        if self.x > 240:
+            self.x = 240
+
         if self.dir == 1:
             if self.x > 240:
                 self.x = 240
             else:
-                if self.ax < self.x + 150:
-                    self.x += 5
-                    # self.ax += 5
-                    # self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                # if self.ax < self.x + 500:
+                #     self.ax += 250
+                #     if self.ax > 500:
+                #         self.ax = 500
+                #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                #     else:
+                #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                self.x += 15
 
         elif self.dir == -1:
             if self.x < 0:
                 self.x = 0
             else:
-                if self.ax > self.x - 150:
-                    self.x -= 5
-                #     self.ax -= 5
-                #     self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                # if self.ax > self.x - 500:
+                #     self.ax -= 250
+                #     if self.ax < -500:
+                #         self.ax = -500
+                #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                #     else:
+                #         self.x = (1 - 0.01) * self.x + 0.01 * self.ax
+                self.x -= 15
+        # else:
+        #     self.x = (1 - 0.01) * self.x + 0.01 * self.ax
 
         if self.y > 40 and self.jumping == 0:
             self.falling = 1
@@ -77,10 +97,12 @@ class Mario:
                 while self.yacc > 0:
                     self.y += self.yacc
                     self.yacc -= 1
+                    self.jumping = 0
 
         else:
             self.y = 40
             self.jumping = 0
+
 
 class Goomba:
     def __init__(self):
@@ -95,16 +117,39 @@ class Goomba:
 
     def draw(self):
         if self.dir == 1:
-            self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
+            self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
         elif self.dir == -1:
-            self.image.clip_composite_draw(self.frame * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
+            self.image.clip_draw(self.frame * 16, 0, 16, 16, self.x, self.y)
 
     def update(self):
         self.x -= 5
 
         self.frame = (self.frame + 1) % 2
 
+class Koopa:
+    def __init__(self):
+        self.x, self.y = 300, 42
+        self.ax, self.ay = self.x, self.y
+        self.image = load_image('assets/koopa_sprite.png')
+        self.frame = 0
+        self.dir = -1
+        self.falling = 0
+        self.gravity = 11
+        self.yacc = 0
+        self.state = 0
+
+    def draw(self):
+        if self.dir == 1:
+            self.image.clip_composite_draw(self.frame * 16, 0, 16, 24, 0, 'h', self.x, self.y, 16, 16)
+
+        elif self.dir == -1:
+            self.image.clip_draw(self.frame * 16, 0, 16, 24, self.x, self.y)
+
+    def update(self):
+        self.x -= 5
+
+        self.frame = (self.frame + 1) % 2
 
 def handle_events():
     global running
@@ -120,7 +165,7 @@ def handle_events():
             elif event.key == SDLK_ESCAPE:
                 running = False
             elif event.key == SDLK_z:
-                if mario.falling == 0:
+                if mario.falling == 0 and mario.jumping == 0:
                     mario.jumping = 1
                     mario.jump()
                 else:
@@ -139,19 +184,23 @@ def handle_events():
 
 def scroll():
 
-    if mario.x > 230 and mario.dir == 1:
+    if mario.x > 230:
         if world.x < -1320:
             world.x = -1320
             pass
         else:
             world.x -= 15
             goomba.x -= 15
+            koopa.x -= 15
+            mario.x -= 5
+            mario.ax = mario.x
 
 
 open_canvas(320, 240)
 world = World()
 mario = Mario()
 goomba = Goomba()
+koopa = Koopa()
 
 running = True;
 
@@ -162,6 +211,7 @@ while running:
     #game logic
     mario.update()
     goomba.update()
+    koopa.update()
     if mario.jumping == 1:
         mario.jump()
 
@@ -170,6 +220,7 @@ while running:
     world.draw()
     mario.draw()
     goomba.draw()
+    koopa.draw()
     scroll()
     update_canvas()
 
