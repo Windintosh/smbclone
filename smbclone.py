@@ -11,8 +11,8 @@ running = True
 
 class World:
     def __init__(self):
-        self.image = load_image('assets/world1-1_over.png')
-        self.x, self.y = 1688, 120
+        self.image = load_image('assets/106583.png')
+        self.x, self.y = 2500, 200
 
     def draw(self):
         self.image.draw(self.x, self.y)
@@ -53,12 +53,12 @@ class Mario:
                 self.image.clip_composite_draw(96, 48, 16, 16, 0, 'h', self.x, self.y, 16, 16)
 
     def update(self):
-        if self.x > 240:
-            self.x = 240
+        if self.x > 350:
+            self.x = 350
 
         if self.dir == 1:
-            if self.x > 240:
-                self.x = 240
+            if self.x > 350:
+                self.x = 350
             else:
                 # if self.ax < self.x + 500: -> use acc
                 #     self.ax += 250
@@ -201,9 +201,9 @@ def handle_events():
 
 def scroll():
 
-    if mario.x > 230:
-        if world.x < -1320:
-            world.x = -1320
+    if mario.x > 350:
+        if world.x < -1960:
+            world.x = -1960
             pass
         else:
             if mario.running == 1:
@@ -220,7 +220,7 @@ def scroll():
 
 def enter():
     global world, mario, goomba, koopa
-    open_canvas(320, 240)
+    open_canvas(576, 432)
     world = World()
     mario = Mario()
     goomba = Goomba()
@@ -259,30 +259,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# running = True;
-"""
-# game main loop code
-while running:
-    handle_events()
-
-    #game logic
-    mario.update()
-    goomba.update()
-    koopa.update()
-    if mario.jumping == 1:
-        mario.jump()
-
-    #game drawing
-    clear_canvas()
-    world.draw()
-    mario.draw()
-    goomba.draw()
-    koopa.draw()
-    scroll()
-    update_canvas()
-"""
-
-# finalization code
-
-# close_canvas()
