@@ -2,6 +2,11 @@ from pico2d import *
 import game_framework
 import random
 
+world = None
+mario = None
+koopa = None
+goomba = None
+running = True
 
 class World:
     def __init__(self):
@@ -95,7 +100,7 @@ class Mario:
             self.falling = 0
 
         self.frame = (self.frame + 1) % 3
-        delay(0.05)
+
 
     def jump(self):
         if self.y >= 40:
@@ -212,15 +217,50 @@ def scroll():
                 koopa.x -= 5
                 mario.x -= 5
 
+def enter():
+    global world, mario, goomba, koopa
+    open_canvas(320, 240)
+    world = World()
+    mario = Mario()
+    goomba = Goomba()
+    koopa = Koopa()
 
-open_canvas(320, 240)
-world = World()
-mario = Mario()
-goomba = Goomba()
-koopa = Koopa()
+def exit():
+    global world, mario, goomba, koopa
+    del world
+    del mario
+    del goomba
+    del koopa
 
-running = True;
+def update():
+    mario.update()
+    goomba.update()
+    koopa.update()
 
+def draw():
+    clear_canvas()
+    clear_canvas()
+    world.draw()
+    mario.draw()
+    goomba.draw()
+    koopa.draw()
+    scroll()
+    update_canvas()
+    delay(0.05)
+
+def main():
+    enter()
+    while running:
+        handle_events()
+        update()
+        draw()
+    exit()
+
+if __name__ == '__main__':
+    main()
+
+# running = True;
+"""
 # game main loop code
 while running:
     handle_events()
@@ -240,7 +280,8 @@ while running:
     koopa.draw()
     scroll()
     update_canvas()
+"""
 
 # finalization code
 
-close_canvas()
+# close_canvas()
