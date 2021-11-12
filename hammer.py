@@ -1,19 +1,19 @@
 from pico2d import *
 import game_world
 
-BALL_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
-BALL_SPEED_KMH = 100 # kmh
-BALL_SPEED_MPM = (BALL_SPEED_KMH * 1000.0 / 60.0) #meter per minute
-BALL_SPEED_MPS = (BALL_SPEED_MPM / 60.0) #METER PER SECOND
-BALL_SPEED_PPS = (BALL_SPEED_MPS * BALL_PIXEL_PER_METER) #pixel per second
+HAMMER_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
+HAMMER_SPEED_KMH = 25 # kmh
+HAMMER_SPEED_MPM = (HAMMER_SPEED_KMH * 1000.0 / 60.0) #meter per minute
+HAMMER_SPEED_MPS = (HAMMER_SPEED_MPM / 60.0) #METER PER SECOND
+HAMMER_SPEED_PPS = (HAMMER_SPEED_MPS * HAMMER_PIXEL_PER_METER) #pixel per second
 
 
-class Ball:
+class Hammer:
     image = None
 
     def __init__(self, x = 400, y = 300, velocity = 1):
-        if Ball.image == None:
-            Ball.image = load_image('ball21x21.png')
+        if Hammer.image == None:
+            Hammer.image = load_image('assets/ball21x21.png')
         self.x, self.y, self.velocity = x, y, velocity
 
     def draw(self):

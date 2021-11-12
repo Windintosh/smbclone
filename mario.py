@@ -1,9 +1,11 @@
 from pico2d import *
 import game_framework
+import game_world
 import title_state
 import world
 import goomba
 import koopa
+from hammer import Hammer
 import random
 
 history = []
@@ -33,6 +35,11 @@ RUN_SPEED_MPM = (RUN_SPEED_KMH * 1000.0 / 60.0) #meter per minute
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0) #METER PER SECOND
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
+HAMMER_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
+HAMMER_SPEED_KMH = 25.0 # kmh
+HAMMER_SPEED_MPM = (HAMMER_SPEED_KMH * 1000.0 / 60.0) #meter per minute
+HAMMER_SPEED_MPS = (HAMMER_SPEED_MPM / 60.0) #METER PER SECOND
+HAMMER_SPEED_PPS = (HAMMER_SPEED_MPS * HAMMER_PIXEL_PER_METER) #pixel per second
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0/ TIME_PER_ACTION
@@ -51,13 +58,13 @@ class IdleState:
             mario.speed += RUN_SPEED_PPS
         mario.timer = 1000
 
-    def exit(boy, event):
+    def exit(mario, event):
         if event == SPACE:
-            boy.fire_ball()
+            mario.fire_hammer()
         pass
 
     def do(mario):
-        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
         mario.timer -= 1
         # if mario.timer == 0:
         #     mario.add_event(SLEEP_TIMER)
@@ -86,12 +93,12 @@ class RunState:
 
     def exit(mario, event):
         if event == SPACE:
-            # boy.fire_ball()
+            mario.fire_hammer()
             pass
 
     def do(mario):
         # fill here
-        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
+        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
         mario.x += mario.speed * game_framework.frame_time
         mario.x = clamp(25, mario.x, 1600 - 25)
 
@@ -144,6 +151,9 @@ class Mario:
             self.y = 40
             self.jumping = 0
 
+    def fire_hammer(self):
+        hammer = Hammer(self.x, self.y, self.dir * HAMMER_SPEED_PPS * game_framework.frame_time)
+        game_world.add_object(hammer, 1)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
