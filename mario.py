@@ -12,8 +12,8 @@ import random
 history = []
 
 # Boy Event
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, DASH_DOWN, DASH_UP, DEBUG_KEY,  = range(7)
-event_name = ['RIGHT_DOWN', 'LEFT_DOWN', 'RIGHT_UP', 'LEFT_UP', 'DASH_DOWN', 'DASH_UP', 'DEBUG_KEY' ]
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, DASH_DOWN, DASH_UP, DEBUG_KEY, JUMP_DOWN, JUMP_UP = range(9)
+event_name = ['RIGHT_DOWN', 'LEFT_DOWN', 'RIGHT_UP', 'LEFT_UP', 'DASH_DOWN', 'DASH_UP', 'DEBUG_KEY', 'JUMP_DOWN', 'JUMP_UP' ]
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_d): DEBUG_KEY,
@@ -27,6 +27,8 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
+    (SDL_KEYDOWN, SDLK_x): JUMP_DOWN,
+    (SDL_KEYUP, SDLK_x): JUMP_UP
 }
 
 # Boy Run Speed
@@ -130,15 +132,39 @@ class DashState:
         else:
             mario.image.clip_composite_draw(int(mario.frame) * 16, 48, 16, 16, 0, 'h', mario.x, mario.y, 16, 16)
 
+class JumpState: # needed
+
+    def enter(mario, event):
+        print('ENTER JUMP')
+        mario.dir = clamp(-1, mario.speed, 1)
+
+
+    def exit(mario, event):
+        print('EXIT JUMP')
+        if event == DASH_DOWN:
+            mario.fire_fb()
+        pass
+
+    def do(mario):
+        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
+        mario.x += mario.speed * game_framework.frame_time * 2
+        mario.x = clamp(25, mario.x, 350)
+
+    def draw(mario):
+        if mario.dir == 1:
+            mario.image.clip_draw(int(mario.frame) * 16, 48, 16, 16, mario.x, mario.y)
+        else:
+            mario.image.clip_composite_draw(int(mario.frame) * 16, 48, 16, 16, 0, 'h', mario.x, mario.y, 16, 16)
+
 
 next_state_table = {
-    IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState},
-    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, DASH_UP: RunState},
-    DashState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState}
+    IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState, JUMP_DOWN: JumpState, JUMP_UP: IdleState},
+    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, DASH_UP: RunState, JUMP_DOWN: JumpState, JUMP_UP: RunState},
+    DashState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: JumpState, JUMP_UP: DashState}
 }
 
 
-
+# change state, collision check, items
 
 class Mario:
     def __init__(self):
@@ -172,7 +198,7 @@ class Mario:
             self.jumping = 0
 
     def fire_fb(self):
-        fb = Hammer(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
+        fb = Fireball(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
         game_world.add_object(fb, 1)
 
     def add_event(self, event):
