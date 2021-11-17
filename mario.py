@@ -6,6 +6,7 @@ import world
 import goomba
 import koopa
 from hammer import Hammer
+from fireball import Fireball
 import random
 
 history = []
@@ -36,11 +37,11 @@ RUN_SPEED_MPM = (RUN_SPEED_KMH * 1000.0 / 60.0) #meter per minute
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0) #METER PER SECOND
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
-HAMMER_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
-HAMMER_SPEED_KMH = 80.0 # kmh
-HAMMER_SPEED_MPM = (HAMMER_SPEED_KMH * 1000.0 / 60.0) #meter per minute
-HAMMER_SPEED_MPS = (HAMMER_SPEED_MPM / 60.0) #METER PER SECOND
-HAMMER_SPEED_PPS = (HAMMER_SPEED_MPS * HAMMER_PIXEL_PER_METER) #pixel per second
+FB_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
+FB_SPEED_KMH = 60 # kmh
+FB_SPEED_MPM = (FB_SPEED_KMH * 1000.0 / 60.0) #meter per minute
+FB_SPEED_MPS = (FB_SPEED_MPM / 60.0) #METER PER SECOND
+FB_SPEED_PPS = (FB_SPEED_MPS * FB_PIXEL_PER_METER) #pixel per second
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0/ TIME_PER_ACTION
@@ -60,7 +61,7 @@ class IdleState:
 
     def exit(mario, event):
         if event == DASH_DOWN:
-            mario.fire_hammer()
+            mario.fire_fb()
         pass
 
     def do(mario):
@@ -90,7 +91,7 @@ class RunState:
 
     def exit(mario, event):
         if event == DASH_DOWN:
-            mario.fire_hammer()
+            mario.fire_fb()
             pass
 
     def do(mario):
@@ -115,7 +116,7 @@ class DashState:
     def exit(mario, event):
         print('EXIT DASH')
         if event == DASH_DOWN:
-            mario.fire_ball()
+            mario.fire_fb()
         pass
 
     def do(mario):
@@ -170,9 +171,9 @@ class Mario:
             self.y = 40
             self.jumping = 0
 
-    def fire_hammer(self):
-        hammer = Hammer(self.x, self.y, self.dir * HAMMER_SPEED_PPS * game_framework.frame_time)
-        game_world.add_object(hammer, 1)
+    def fire_fb(self):
+        fb = Hammer(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
+        game_world.add_object(fb, 1)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
