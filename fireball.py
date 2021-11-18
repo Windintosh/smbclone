@@ -22,6 +22,10 @@ class Fireball:
         self.x, self.y, self.velocity = x, y, velocity
         self.frame = 0
 
+    def get_bb(self):
+        # fill here
+        return self.x - 4, self.y - 4, self.x + 4, self.y + 4
+
     def draw(self):
         if self.velocity > 0:
             self.image.clip_draw(int(self.frame) * 8, 0, 8, 8, self.x, self.y)

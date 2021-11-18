@@ -22,6 +22,10 @@ class Hammer:
         self.x, self.y, self.velocity = x, y, velocity
         self.frame = 0
 
+    def get_bb(self):
+        # fill here
+        return self.x - 7, self.y - 7, self.x + 7, self.y + 7
+
     def draw(self):
         if self.velocity > 0:
             self.image.clip_draw(int(self.frame) * 14, 0, 14, 14, self.x, self.y)

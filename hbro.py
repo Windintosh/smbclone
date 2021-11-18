@@ -20,11 +20,11 @@ ACTION_PER_TIME = 1.0/ TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 # action with timer, jump, sprite needed
-class Koopa:
+class Hbro:
     def __init__(self):
-        self.x, self.y = 300, 42
+        self.x, self.y = 340, 43
         self.ax, self.ay = self.x, self.y
-        self.image = load_image('assets/koopa_sprite.png')
+        self.image = load_image('assets/hbro_sprite.png')
         self.frame = 0
         self.dir = -1
         self.falling = 0
@@ -33,6 +33,11 @@ class Koopa:
         self.state = 0
         self.speed = 0
         self.timer = 50
+
+    def get_bb(self):
+        # fill here
+        return self.x - 8, self.y - 12, self.x + 8, self.y + 12
+
     def draw(self):
         if self.dir == 1:
             self.image.clip_composite_draw(int(self.frame) * 16, 0, 16, 24, 0, 'h', self.x, self.y, 16, 16)
@@ -45,7 +50,7 @@ class Koopa:
             self.x -= RUN_SPEED_PPS * game_framework.frame_time
         else:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
 
     def throw_hammer(self):
         hammer = Hammer(self.x, self.y, self.dir * HAMMER_SPEED_PPS * game_framework.frame_time)

@@ -23,6 +23,11 @@ class Goomba:
         self.gravity = 11
         self.yacc = 0
         self.speed = 0
+
+    def get_bb(self):
+        # fill here
+        return self.x - 8, self.y - 8, self.x + 8, self.y + 8
+
     def draw(self):
         if self.dir == 1:
             self.image.clip_composite_draw(int(self.frame) * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)

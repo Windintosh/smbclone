@@ -22,7 +22,7 @@ FRAMES_PER_ACTION = 8
 #action with timer, jump
 class Bowser:
     def __init__(self):
-        self.x, self.y = 300, 42
+        self.x, self.y = 320, 47
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/bowser_sprite.png')
         self.frame = 0
@@ -33,6 +33,11 @@ class Bowser:
         self.state = 0
         self.speed = 0
         self.timer = 30
+
+    def get_bb(self):
+        # fill here
+        return self.x - 16, self.y - 16, self.x + 16, self.y + 16
+
     def draw(self):
         if self.dir == 1:
             self.image.clip_composite_draw(int(self.frame) * 32, 0, 32, 32, 0, 'h', self.x, self.y, 32, 32)
@@ -45,7 +50,7 @@ class Bowser:
             self.x -= RUN_SPEED_PPS * game_framework.frame_time
         else:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
+        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
 
     def throw_hammer(self):
         hammer = Hammer(self.x, self.y, self.dir * HAMMER_SPEED_PPS * game_framework.frame_time)

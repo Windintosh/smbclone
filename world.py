@@ -11,3 +11,7 @@ class World:
 
     def draw(self):
         self.image.draw(self.x, self.y)
+
+    def get_bb(self):
+        # fill here
+        return 0, 0, 2500, 43
