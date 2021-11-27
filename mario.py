@@ -39,11 +39,17 @@ RUN_SPEED_MPM = (RUN_SPEED_KMH * 1000.0 / 60.0) #meter per minute
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0) #METER PER SECOND
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
-FB_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 FB_SPEED_KMH = 60 # kmh
 FB_SPEED_MPM = (FB_SPEED_KMH * 1000.0 / 60.0) #meter per minute
 FB_SPEED_MPS = (FB_SPEED_MPM / 60.0) #METER PER SECOND
-FB_SPEED_PPS = (FB_SPEED_MPS * FB_PIXEL_PER_METER) #pixel per second
+FB_SPEED_PPS = (FB_SPEED_MPS * PIXEL_PER_METER) #pixel per second
+
+FALL_SPEED_KMH = 20
+FALL_SPEED_MPM = (FALL_SPEED_KMH * 1000.0 / 60.0) #meter per minute
+FALL_SPEED_MPS = (FALL_SPEED_MPM / 60.0) #METER PER SECOND
+FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
+
+
 
 TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0/ TIME_PER_ACTION
@@ -65,7 +71,8 @@ class IdleState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            mario.fire_hammer()
+            mario.jumping = 1
+            mario.jump()
         pass
 
     def do(mario):
@@ -97,7 +104,8 @@ class RunState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            mario.fire_hammer()
+            mario.jumping = 1
+            mario.jump()
         pass
 
     def do(mario):
@@ -123,6 +131,9 @@ class DashState:
         print('EXIT DASH')
         if event == DASH_DOWN:
             mario.fire_fb()
+        elif event == JUMP_DOWN:
+            mario.jumping = 1
+            mario.jump()
         pass
 
     def do(mario):
@@ -146,12 +157,15 @@ class JumpState: # needed
     def exit(mario, event):
         print('EXIT JUMP')
         if event == JUMP_DOWN:
-            mario.fire_hammer()
+            mario.jumping = 1
+            mario.jump()
+        elif event == JUMP_UP:
+            mario.jumping = 0
         pass
 
     def do(mario):
         mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
-        mario.x += mario.speed * game_framework.frame_time * 2
+        # mario.x += mario.speed * game_framework.frame_time * 2
         mario.x = clamp(25, mario.x, 576 - 25) #350
 
     def draw(mario):
@@ -163,7 +177,7 @@ class JumpState: # needed
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState, JUMP_DOWN: IdleState, JUMP_UP: IdleState},
-    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, DASH_UP: RunState, JUMP_DOWN: JumpState, JUMP_UP: RunState},
+    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, DASH_UP: RunState, JUMP_DOWN: RunState, JUMP_UP: RunState},
     DashState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: DashState, JUMP_UP: DashState},
     JumpState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: JumpState, JUMP_UP: JumpState}
         # {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState, JUMP_DOWN: JumpState, JUMP_UP: IdleState}
@@ -211,9 +225,9 @@ class Mario:
         fb = Fireball(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
         game_world.add_object(fb, 1)
 
-    def fire_hammer(self):
-        hammer = Hammer(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
-        game_world.add_object(hammer, 1)
+    # def fire_hammer(self):
+    #     hammer = Hammer(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
+    #     game_world.add_object(hammer, 1)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -225,6 +239,7 @@ class Mario:
             self.cur_state.exit(self, event)
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
+        self.y -= FALL_SPEED_PPS * game_framework.frame_time
 
     def draw(self):
         self.cur_state.draw(self)

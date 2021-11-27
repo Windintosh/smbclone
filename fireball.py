@@ -42,17 +42,21 @@ class Fireball:
             game_world.remove_object(self)
         if collision.collide(self, server.goomba):
             server.goomba.state = 0
+            self.x, self.y = -1, -1
             game_world.remove_object(self)
             print('hit goomba')
         elif collision.collide(self, server.koopa):
             server.koopa.state = 0
+            self.x, self.y = -1, -1
             game_world.remove_object(self)
             print('hit koopa')
         elif collision.collide(self, server.hbro):
             server.hbro.state = 0
+            self.x, self.y = -1, -1
             game_world.remove_object(self)
             print('hit hammer bro')
         elif collision.collide(self, server.bowser):
             server.bowser.hp -= 1
+            self.x, self.y = -1, -1
             game_world.remove_object(self)
             print('hit bowser')

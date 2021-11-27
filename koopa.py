@@ -23,7 +23,7 @@ class Koopa:
         self.falling = 0
         self.gravity = 11
         self.yacc = 0
-        self.state = 0
+        self.state = 1
         self.speed = 0
 
     def get_bb(self):

@@ -11,7 +11,7 @@ class World:
 
     def update(self):
         if collision.collide(self, server.mario):
-            server.mario.y = self.y
+            server.mario.y = 43
         pass
 
     def draw(self):
