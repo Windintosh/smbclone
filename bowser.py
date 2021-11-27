@@ -30,9 +30,9 @@ class Bowser:
         self.falling = 0
         self.gravity = 11
         self.yacc = 0
-        self.state = 0
         self.speed = 0
         self.timer = 30
+        self.hp = 10
 
     def get_bb(self):
         # fill here
@@ -51,6 +51,10 @@ class Bowser:
         else:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if self.hp == 0:
+            game_world.remove_object(self)
+            self.x, self.y = -1, -1
+            print('bowser is dead')
 
     def throw_hammer(self):
         hammer = Hammer(self.x, self.y, self.dir * HAMMER_SPEED_PPS * game_framework.frame_time)

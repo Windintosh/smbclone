@@ -1,5 +1,6 @@
 from pico2d import *
 import game_framework
+import game_world
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 RUN_SPEED_KMH = 10.0 # kmh
@@ -23,6 +24,7 @@ class Goomba:
         self.gravity = 11
         self.yacc = 0
         self.speed = 0
+        self.state = 1
 
     def get_bb(self):
         # fill here
@@ -41,3 +43,6 @@ class Goomba:
         else:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if self.state == 0:
+            game_world.remove_object(self)
+            self.x, self.y = -1, -1

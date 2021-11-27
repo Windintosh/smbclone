@@ -5,6 +5,7 @@ import os
 from pico2d import *
 import game_framework
 import game_world
+import server
 
 from mario import Mario
 from world import World
@@ -17,42 +18,27 @@ from hammer import Hammer
 
 name = "MainState"
 
-mario = None
-world = None
-goomba = None
-koopa = None
-hbro = None
-bowser = None
-fb = None
-
-def collide(a, b):
-    # fill here
-    left_a, bottom_a, right_a, top_a = a.get_bb()
-    left_b, bottom_b, right_b, top_b = b.get_bb()
-
-    if left_a > right_b: return False
-    if right_a < left_b: return False
-    if top_a < bottom_b: return False
-    if bottom_a > top_b: return False
-    return True
 
 def enter():
-    global mario
-    mario = Mario()
-    world = World()
-    goomba = Goomba()
-    koopa = Koopa()
-    hbro = Hbro()
-    bowser = Bowser()
-    fb = Fireball()
+    server.mario = Mario()
+    game_world.add_object(server.mario, 1)
 
-    game_world.add_object(world, 0)
-    game_world.add_object(mario, 1)
-    game_world.add_object(goomba, 1)
-    game_world.add_object(koopa, 1)
-    game_world.add_object(bowser, 1)
-    game_world.add_object(hbro, 1)
+    server.world = World()
+    game_world.add_object(server.world, 0)
 
+    server.goomba = Goomba()
+    game_world.add_object(server.goomba, 1)
+
+    server.koopa = Koopa()
+    game_world.add_object(server.koopa, 1)
+
+    server.hbro = Hbro()
+    game_world.add_object(server.hbro, 1)
+
+    server.bowser = Bowser()
+    game_world.add_object(server.bowser, 1)
+
+    server.fb = Fireball()
 
 def exit():
     game_world.clear()
@@ -73,7 +59,7 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
         else:
-            mario.handle_event(event)
+            server.mario.handle_event(event)
 
 
 def update():
@@ -81,7 +67,7 @@ def update():
         game_object.update()
     # fill here
     # delay(0.01)
-    #collision check
+    #collision  ->move to individuals
     # if collide(fb, goomba):
     #     print("Goomba Hit")
     #     Goomba.remove(goomba)

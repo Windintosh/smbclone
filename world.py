@@ -1,5 +1,8 @@
 from pico2d import *
 
+import collision
+import server
+
 
 class World:
     def __init__(self):
@@ -7,6 +10,8 @@ class World:
         self.x, self.y = 2500, 200
 
     def update(self):
+        if collision.collide(self, server.mario):
+            server.mario.y = self.y
         pass
 
     def draw(self):

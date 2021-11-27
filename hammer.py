@@ -1,6 +1,9 @@
 from pico2d import *
+
+import collision
 import game_world
 import game_framework
+import server
 
 HAMMER_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 HAMMER_SPEED_KMH = 50 # kmh
@@ -37,3 +40,10 @@ class Hammer:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.x < 25 or self.x > 1600 - 25:
             game_world.remove_object(self)
+        if collision.collide(self, server.mario):
+            if server.mario.state == 1:
+                server.mario.state -= 1
+            else:
+                server.mario.state = 1
+            print('mario hit by hammer')
+

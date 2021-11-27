@@ -1,6 +1,9 @@
 from pico2d import *
+
+import collision
 import game_world
 import game_framework
+import server
 
 FB_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 FB_SPEED_KMH = 60 # kmh
@@ -37,3 +40,19 @@ class Fireball:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.x < 25 or self.x > 1600 - 25:
             game_world.remove_object(self)
+        if collision.collide(self, server.goomba):
+            server.goomba.state = 0
+            game_world.remove_object(self)
+            print('hit goomba')
+        elif collision.collide(self, server.koopa):
+            server.koopa.state = 0
+            game_world.remove_object(self)
+            print('hit koopa')
+        elif collision.collide(self, server.hbro):
+            server.hbro.state = 0
+            game_world.remove_object(self)
+            print('hit hammer bro')
+        elif collision.collide(self, server.bowser):
+            server.bowser.hp -= 1
+            game_world.remove_object(self)
+            print('hit bowser')
