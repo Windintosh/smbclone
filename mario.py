@@ -9,6 +9,9 @@ import goomba
 import koopa
 import hbro
 import bowser
+import block
+import itemblock
+import mushroom
 import server
 from hammer import Hammer
 from fireball import Fireball
@@ -82,13 +85,22 @@ class IdleState:
         pass
 
     def do(mario):
-        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 3
+        if mario.jumping == 1 or mario.falling == 1:
+            mario.frame = 3
+        else:
+            mario.frame = 0
 
     def draw(mario):
         if mario.dir == 1:
-            mario.image.clip_draw(0, 33, 16, 24, mario.x, mario.y)
+            if mario.state == 1:
+                mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+            elif mario.state == 2:
+                mario.image.clip_draw(int(mario.frame) * 16, 0, 16, 31, mario.x, mario.y)
         else:
-            mario.image.clip_composite_draw(0, 33, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            if mario.state == 1:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            elif mario.state == 2:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 0, 16, 31, 0, 'h', mario.x, mario.y, 16, 31)
 
 
 class RunState:
@@ -117,15 +129,24 @@ class RunState:
 
     def do(mario):
         # fill here
-        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if mario.jumping == 1 or mario.falling == 1:
+            mario.frame = 3
+        else:
+            mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         mario.x += mario.speed * game_framework.frame_time
         mario.x = clamp(25, mario.x, 576-25) # 350
 
     def draw(mario):
         if mario.dir == 1:
-            mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+            if mario.state == 1:
+                mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+            elif mario.state == 2:
+                mario.image.clip_draw(int(mario.frame) * 16, 0, 16, 31, mario.x, mario.y)
         else:
-            mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            if mario.state == 1:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            elif mario.state == 2:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 0, 16, 31, 0, 'h', mario.x, mario.y, 16, 31)
 
 class DashState:
 
@@ -145,15 +166,24 @@ class DashState:
         pass
 
     def do(mario):
-        mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        if mario.jumping == 1 or mario.falling == 1:
+            mario.frame = 3
+        else:
+            mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         mario.x += mario.speed * game_framework.frame_time * 2
         mario.x = clamp(25, mario.x, 576 - 25) #350
 
     def draw(mario):
         if mario.dir == 1:
-            mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+            if mario.state == 1:
+                mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+            elif mario.state == 2:
+                mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
         else:
-            mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            if mario.state == 1:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+            elif mario.state == 2:
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
 
 class JumpState: # needed
 
@@ -208,7 +238,7 @@ class Mario:
         self.falling = 0
         self.gravity = 70
         self.yacc = 0
-        self.state = 1
+        self.state = 2 # 0 : dead, 1 : small, 2 : big(fire)
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
@@ -236,10 +266,6 @@ class Mario:
     def fire_fb(self):
         fb = Fireball(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
         game_world.add_object(fb, 1)
-
-    # def fire_hammer(self):
-    #     hammer = Hammer(self.x, self.y, self.dir * FB_SPEED_PPS * game_framework.frame_time)
-    #     game_world.add_object(hammer, 1)
 
     def add_event(self, event):
         self.event_que.insert(0, event)
@@ -285,6 +311,12 @@ class Mario:
             else:
                 self.state = 1
         # add items
+        # elif collision.collide(self, server.mushroom):
+        #     self.state = 2
+        #     pass
+
+        # if collision.collide(self, server.block):
+        #     pass
 
         if collision.collide(self, server.world):
             server.mario.y = 43

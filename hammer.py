@@ -42,7 +42,7 @@ class Hammer:
             game_world.remove_object(self)
         if collision.collide(self, server.mario):
             if server.mario.state == 1:
-                server.mario.state -= 1
+                server.mario.state = 0
             else:
                 server.mario.state = 1
             print('mario hit by hammer')

@@ -5,3 +5,5 @@ koopa = None
 hbro = None
 bowser = None
 fb = None
+mushroom = None
+fireflower = None

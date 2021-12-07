@@ -22,7 +22,8 @@ class World:
         if collision.collide(self, server.bowser):
             server.bowser.y = 47 # mario + 4px
         pass
-
+        # if collision.collide(self, server.mushroom):
+        #     server.mushroom.y = 40
     def draw(self):
         self.image.draw(self.x, self.y)
         draw_rectangle(0, 0, 2500, 31)
