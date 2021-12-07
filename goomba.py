@@ -12,6 +12,10 @@ TIME_PER_ACTION = 0.5
 ACTION_PER_TIME = 1.0/ TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
+FALL_SPEED_KMH = 20
+FALL_SPEED_MPM = (FALL_SPEED_KMH * 1000.0 / 60.0) #meter per minute
+FALL_SPEED_MPS = (FALL_SPEED_MPM / 60.0) #METER PER SECOND
+FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 class Goomba:
     def __init__(self):
@@ -43,6 +47,7 @@ class Goomba:
         else:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+        self.y -= FALL_SPEED_PPS * game_framework.frame_time
         if self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1

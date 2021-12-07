@@ -1,10 +1,15 @@
 from pico2d import *
+
+import collision
 import game_framework
 import game_world
 import title_state
 import world
 import goomba
 import koopa
+import hbro
+import bowser
+import server
 from hammer import Hammer
 from fireball import Fireball
 import random
@@ -71,8 +76,9 @@ class IdleState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            mario.jumping = 1
-            mario.jump()
+            if mario.jumping == 0 and mario.falling == 0:
+                mario.jumping = 1
+                mario.jump()
         pass
 
     def do(mario):
@@ -104,8 +110,9 @@ class RunState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            mario.jumping = 1
-            mario.jump()
+            if mario.jumping == 0 and mario.falling == 0:
+                mario.jumping = 1
+                mario.jump()
         pass
 
     def do(mario):
@@ -132,8 +139,9 @@ class DashState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            mario.jumping = 1
-            mario.jump()
+            if mario.jumping == 0 and mario.falling == 0:
+                mario.jumping = 1
+                mario.jump()
         pass
 
     def do(mario):
@@ -157,8 +165,9 @@ class JumpState: # needed
     def exit(mario, event):
         print('EXIT JUMP')
         if event == JUMP_DOWN:
-            mario.jumping = 1
-            mario.jump()
+            if mario.jumping == 0:
+                mario.jumping = 1
+                mario.jump()
         elif event == JUMP_UP:
             mario.jumping = 0
         pass
@@ -188,7 +197,7 @@ next_state_table = {
 
 class Mario:
     def __init__(self):
-        self.x, self.y = 100, 43
+        self.x, self.y = 100, 43  # world + 3
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/mario_new_sprite.png')
         self.frame = 0
@@ -197,7 +206,7 @@ class Mario:
         self.speed = 0
         self.jumping = 0
         self.falling = 0
-        self.gravity = 12
+        self.gravity = 70
         self.yacc = 0
         self.state = 1
         self.event_que = []
@@ -205,17 +214,20 @@ class Mario:
         self.cur_state.enter(self, None)
 
     def jump(self):
+
         if self.y >= 40:
             if self.jumping == 1:
                 self.yacc = self.gravity
-                while self.yacc > 0:
-                    self.y += self.yacc
-                    self.yacc -= 1
-                    self.jumping = 0
-
+                # while self.yacc > 0:
+                self.y += self.yacc *game_framework.frame_time *FALL_SPEED_PPS
+                self.yacc -= 1
+                    # update_canvas()
         else:
             self.y = 40
             self.jumping = 0
+        self.jumping = 0
+
+        pass
 
     def get_bb(self):
         # fill here
@@ -239,12 +251,57 @@ class Mario:
             self.cur_state.exit(self, event)
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
-        self.y -= FALL_SPEED_PPS * game_framework.frame_time
+        if self.falling == 1:
+            self.y -= FALL_SPEED_PPS * game_framework.frame_time
+            # print('mario is falling')
+        # elif self.falling == 0 and self.jumping == 1:
+        #     self.ay = self.y
+        #     self.y += FALL_SPEED_PPS * game_framework.frame_time
+        #     if self.y == self.ay + 50:
+        #         self.jumping = 0
+
+        if collision.collide(self, server.goomba):
+            if self.jumping == 1 or self.falling == 1:
+                server.goomba.state = 0
+                self.y += 20
+            else:
+                if self.state == 1:
+                    self.state = 0
+                else:
+                    self.state = 1
+
+        elif collision.collide(self, server.hbro):
+            if self.jumping == 1 or self.falling == 1:
+                server.hbro.state -= 1
+                self.y += 20
+            else:
+                if self.state == 1:
+                    self.state = 0
+                else:
+                    self.state = 1
+        elif collision.collide(self, server.bowser):
+            if self.state == 1:
+                self.state = 0
+            else:
+                self.state = 1
+        # add items
+
+        if collision.collide(self, server.world):
+            server.mario.y = 43
+            server.mario.falling = 0
+        else:
+            server.mario.falling = 1
+
+        if self.state == 0:
+            print('mario is dead')
+
+        # print('mario y:', self.y)
 
     def draw(self):
         self.cur_state.draw(self)
         # fill here
         # self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)' % get_time(), (255, 255, 0))
+        draw_rectangle(self.x - 8, self.y - 12, self.x + 8, self.y + 12)
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
