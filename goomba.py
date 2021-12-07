@@ -18,8 +18,10 @@ FALL_SPEED_MPS = (FALL_SPEED_MPM / 60.0) #METER PER SECOND
 FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 class Goomba:
-    def __init__(self):
-        self.x, self.y = 240, 40
+    def __init__(self, l, h):
+        self.left = l
+        self.up = h
+        self.x, self.y = self.left * 16, self.up * 16
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/goomba_sprite.png')
         self.frame = 0

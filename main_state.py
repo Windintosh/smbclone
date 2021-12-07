@@ -14,6 +14,8 @@ from koopa import Koopa
 from hbro import Hbro
 from bowser import Bowser
 from fireball import Fireball
+from block import Block
+from itemblock import Itemblock
 from hammer import Hammer
 
 name = "MainState"
@@ -26,17 +28,24 @@ def enter():
     server.world = World()
     game_world.add_object(server.world, 0)
 
-    server.goomba = Goomba()
+    server.goomba = Goomba(random.randint(1, 30), random.randint(5, 20))
     game_world.add_object(server.goomba, 1)
 
-    server.koopa = Koopa()
+    server.koopa = Koopa(random.randint(1, 30), random.randint(5, 20))
     game_world.add_object(server.koopa, 1)
 
-    server.hbro = Hbro()
+    server.hbro = Hbro(random.randint(1, 30), random.randint(5, 20))
     game_world.add_object(server.hbro, 1)
 
-    server.bowser = Bowser()
+    server.bowser = Bowser(random.randint(10, 30), random.randint(5, 20))
     game_world.add_object(server.bowser, 1)
+
+    server.block = Block(random.randint(1, 30), random.randint(5, 20))
+    game_world.add_object(server.block, 1)
+
+    server.itemblock = Itemblock(random.randint(1, 30), random.randint(1, 20))
+    game_world.add_object(server.itemblock, 1)
+
 
     server.fb = Fireball()
 

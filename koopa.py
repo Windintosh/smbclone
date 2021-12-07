@@ -26,8 +26,10 @@ SLIDE_SPEED_MPS = (SLIDE_SPEED_MPM / 60.0) #METER PER SECOND
 SLIDE_SPEED_PPS = (SLIDE_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 class Koopa:
-    def __init__(self):
-        self.x, self.y = 300, 43
+    def __init__(self, l, h):
+        self.left = l
+        self.up = h
+        self.x, self.y = self.left * 16, self.up * 16
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/koopa_sprite.png')
         self.frame = 0

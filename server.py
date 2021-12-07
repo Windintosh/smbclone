@@ -6,4 +6,5 @@ hbro = None
 bowser = None
 fb = None
 mushroom = None
-fireflower = None
+block = None
+itemblock = None

@@ -29,8 +29,10 @@ FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 #action with timer, jump
 class Bowser:
-    def __init__(self):
-        self.x, self.y = 320, 47
+    def __init__(self, l, h):
+        self.left = l
+        self.up = h
+        self.x, self.y = self.left * 16, self.up * 16
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/bowser_sprite.png')
         self.frame = 0
@@ -56,17 +58,16 @@ class Bowser:
             self.image.clip_draw(int(self.frame) * 32, 0, 32, 32, self.x, self.y)
 
     def update(self):
-        self.bt.run()
-        if self.dir == -1:
-            # self.x -= RUN_SPEED_PPS * game_framework.frame_time
-            pass
-        else:
-            # self.x += RUN_SPEED_PPS * game_framework.frame_time
-            pass
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        self.y -= FALL_SPEED_PPS * game_framework.frame_time
+        if self.hp > 0:
+            self.bt.run()
+            if self.dir == -1:
+                pass
+            else:
+                pass
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+            self.y -= FALL_SPEED_PPS * game_framework.frame_time
 
-        if self.hp == 0:
+        elif self.hp == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1
             print('bowser is dead')

@@ -29,8 +29,10 @@ FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 # action with timer, jump, sprite needed
 class Hbro:
-    def __init__(self):
-        self.x, self.y = 340, 43
+    def __init__(self, l, h):
+        self.left = l
+        self.up = h
+        self.x, self.y = self.left * 16, self.up * 16
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/hbro_sprite.png')
         self.frame = 0
@@ -59,17 +61,18 @@ class Hbro:
             self.image.clip_draw(int(self.frame) * 16, 0, 16, 24, self.x, self.y)
 
     def update(self):
-        self.bt.run()
-        if self.dir == -1:
-            # self.x -= RUN_SPEED_PPS * game_framework.frame_time
-            pass
-        else:
-            # self.x += RUN_SPEED_PPS * game_framework.frame_time
-            pass
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        self.y -= FALL_SPEED_PPS * game_framework.frame_time
+        if self.state == 1:
+            self.bt.run()
+            if self.dir == -1:
+                # self.x -= RUN_SPEED_PPS * game_framework.frame_time
+                pass
+            else:
+                # self.x += RUN_SPEED_PPS * game_framework.frame_time
+                pass
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
+            self.y -= FALL_SPEED_PPS * game_framework.frame_time
 
-        if self.state == 0:
+        elif self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1
 
@@ -97,7 +100,7 @@ class Hbro:
     def find_player(self):
         # fill here
         distance2 = (server.mario.x - self.x) ** 2 + (server.mario.y - self.y) ** 2
-        if distance2 <= (PIXEL_PER_METER * 10) ** 2:
+        if distance2 <= (PIXEL_PER_METER * 3) ** 2:
             print('Hbro found player')
             return BehaviorTree.SUCCESS
         else:

@@ -14,10 +14,12 @@ from fireball import Fireball
 import random
 
 class Itemblock:
-    def __init__(self):
-        self.x, self.y = 240, 40
+    def __init__(self, l, h):
+        self.left = l
+        self.up = h
+        self.x, self.y = self.left * 16, self.up * 16
         self.ax, self.ay = self.x, self.y
-        self.image = load_image('assets/goomba_sprite.png')
+        self.image = load_image('assets/itemblock_sprite.png')
         self.frame = 0
         self.dir = -1
         self.falling = 0
@@ -31,19 +33,9 @@ class Itemblock:
         return self.x - 8, self.y - 8, self.x + 8, self.y + 8
 
     def draw(self):
-        if self.dir == 1:
-            self.image.clip_composite_draw(int(self.frame) * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
-
-        elif self.dir == -1:
-            self.image.clip_draw(int(self.frame) * 16, 0, 16, 16, self.x, self.y)
+        self.image.clip_draw(0, 0, 16, 16, self.x, self.y)
 
     def update(self):
-        if self.dir == -1:
-            self.x -= RUN_SPEED_PPS * game_framework.frame_time
-        else:
-            self.x += RUN_SPEED_PPS * game_framework.frame_time
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        self.y -= FALL_SPEED_PPS * game_framework.frame_time
         if self.state == 0:
-            game_world.remove_object(self)
+            self.image.clip_draw(16, 0, 16, 16, self.x, self.y)
             self.x, self.y = -1, -1
