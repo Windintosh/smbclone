@@ -1,6 +1,7 @@
 import game_framework
 from pico2d import *
 import title_state
+import idiot
 
 
 name = "StartState"
@@ -27,6 +28,7 @@ def update():
         logo_time = 0
         # game_framework.quit()
         game_framework.change_state(title_state)
+        # game_framework.change_state(idiot)
     delay(0.01)
     logo_time += 0.01
     pass

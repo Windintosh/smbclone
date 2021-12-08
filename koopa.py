@@ -40,12 +40,17 @@ class Koopa:
         self.state = 2
         self.speed = 1
         self.sliding = 0
+        self.stomp_sound = load_wav('assets/smb_stomp.wav')
+        self.kick_sound = load_wav('assets/smb_kick.wav')
 
     def shell(self):
         self.speed = 0
+        self.dir = 0
 
     def slide(self):
-        self.dir = server.mario.dir
+        if self.dir == 0:
+            self.dir = server.mario.dir
+            pass
         self.x += self.dir * SLIDE_SPEED_PPS * game_framework.frame_time
 
     def get_bb(self):
@@ -71,30 +76,54 @@ class Koopa:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         self.y -= FALL_SPEED_PPS * game_framework.frame_time
 
-        if collision.collide(self, server.mario):
-            if self.state == 2:
+
+        if self.state == 0:
+            game_world.remove_object(self)
+            self.x, self.y = -1, -1
+
+        elif self.state == 1:
+            if self.y <= 0:
+                self.state = 0
+            if collision.collide(self, server.mario): #
+                if server.mario.jumping == 1 or server.mario.falling == 1:
+                    server.mario.y += 20
+                    if self.sliding == 0:
+                        self.sliding = 1
+                    else:
+                        self.sliding = 0
+                else:
+                    if self.sliding == 0:
+                        self.sliding = 1
+                    else:
+                        self.sliding = 0
+                    if self.sliding == 1:
+                        self.slide()
+                    else:
+                        self.shell()
+
+            if self.sliding == 1: #
+                self.slide()
+            else:
+                self.shell()
+
+        elif self.state == 2: #
+            if self.y <= 0:
+                self.state = 0
+            if collision.collide(self, server.mario):
                 if server.mario.jumping == 1 or server.mario.falling == 1:
                     self.state = 1
                     server.mario.y += 20
                 else:
                     if server.mario.state == 1:
-                        server.mario.state == 0
+                        server.mario.state = 0
                     else:
-                        server.mario.state == 1
+                        server.mario.state = 1
+
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
             else:
-                if self.sliding == 0:
-                    self.sliding = 1
-                else:
-                    self.dir = 0
-                    self.sliding = 0
-                if server.mario.jumping == 1 or server.mario.falling == 1:
-                    server.mario.y += 20
-
-        if self.state == 1:
-            self.shell()
-            if self.sliding == 1:
-                self.slide()
-
-        if self.state == 0:
-            game_world.remove_object(self)
-            self.x, self.y = -1, -1
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass

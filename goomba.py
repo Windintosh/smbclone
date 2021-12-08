@@ -1,6 +1,7 @@
 from pico2d import *
 import game_framework
 import game_world
+import server
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 RUN_SPEED_KMH = 10.0 # kmh
@@ -50,6 +51,17 @@ class Goomba:
             self.x += RUN_SPEED_PPS * game_framework.frame_time
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         self.y -= FALL_SPEED_PPS * game_framework.frame_time
+        if self.y <= 0:
+            self.state = 0
         if self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1
+
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
+            else:
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass

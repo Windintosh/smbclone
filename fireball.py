@@ -24,6 +24,7 @@ class Fireball:
             Fireball.image = load_image('assets/fb_sprite.png')
         self.x, self.y, self.velocity = x, y, velocity
         self.frame = 0
+        self.state = 1
 
     def get_bb(self):
         # fill here
@@ -40,23 +41,32 @@ class Fireball:
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.x < 25 or self.x > 1600 - 25:
             game_world.remove_object(self)
-        if collision.collide(self, server.goomba):
-            server.goomba.state = 0
-            self.x, self.y = -1, -1
+        if self.state == 0:
             game_world.remove_object(self)
-            print('hit goomba')
-        elif collision.collide(self, server.koopa):
-            server.koopa.state = 0
             self.x, self.y = -1, -1
-            game_world.remove_object(self)
-            print('hit koopa')
-        elif collision.collide(self, server.hbro):
-            server.hbro.state = 0
-            self.x, self.y = -1, -1
-            game_world.remove_object(self)
-            print('hit hammer bro')
-        elif collision.collide(self, server.bowser):
-            server.bowser.hp -= 1
-            self.x, self.y = -1, -1
-            game_world.remove_object(self)
-            print('hit bowser')
+        else:
+            if collision.collide(self, server.goomba):
+                server.goomba.state = 0
+                self.state = 0
+                print('hit goomba')
+            elif collision.collide(self, server.koopa):
+                server.koopa.state = 0
+                self.state = 0
+                print('hit koopa')
+            elif collision.collide(self, server.hbro):
+                server.hbro.state = 0
+                self.state = 0
+                print('hit hammer bro')
+            elif collision.collide(self, server.bowser):
+                server.bowser.hp -= 1
+                self.state = 0
+                print('hit bowser')
+
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
+            else:
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass

@@ -13,6 +13,7 @@ import block
 import itemblock
 import mushroom
 import server
+import idiot
 from hammer import Hammer
 from fireball import Fireball
 import random
@@ -79,9 +80,13 @@ class IdleState:
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            if mario.jumping == 0 and mario.falling == 0:
+            if mario.falling == 0 and mario.jumping == 0:
                 mario.jumping = 1
                 mario.jump()
+        elif event == JUMP_UP:
+            if mario.jumping == 1:
+                mario.jumping = 0
+                mario.falling = 1
         pass
 
     def do(mario):
@@ -89,6 +94,8 @@ class IdleState:
             mario.frame = 3
         else:
             mario.frame = 0
+        if mario.jumping == 1:
+            mario.jump()
 
     def draw(mario):
         if mario.dir == 1:
@@ -124,7 +131,10 @@ class RunState:
         elif event == JUMP_DOWN:
             if mario.jumping == 0 and mario.falling == 0:
                 mario.jumping = 1
-                mario.jump()
+        elif event == JUMP_UP:
+            if mario.jumping == 1:
+                mario.jumping = 0
+                mario.falling = 1
         pass
 
     def do(mario):
@@ -134,7 +144,9 @@ class RunState:
         else:
             mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         mario.x += mario.speed * game_framework.frame_time
-        mario.x = clamp(25, mario.x, 576-25) # 350
+        mario.x = clamp(25, mario.x, 350) # 576-25
+        if mario.jumping == 1:
+            mario.jump()
 
     def draw(mario):
         if mario.dir == 1:
@@ -153,16 +165,22 @@ class DashState:
     def enter(mario, event):
         print('ENTER DASH')
         mario.dir = clamp(-1, mario.speed, 1)
-
+        mario.dash = 1
+        print('dashing: ' + str(mario.dash))
 
     def exit(mario, event):
         print('EXIT DASH')
         if event == DASH_DOWN:
             mario.fire_fb()
         elif event == JUMP_DOWN:
-            if mario.jumping == 0 and mario.falling == 0:
+            if mario.falling == 0 and mario.jumping == 0:
                 mario.jumping = 1
-                mario.jump()
+        elif event == JUMP_UP:
+            if mario.jumping == 1:
+                mario.jumping = 0
+                mario.falling = 1
+        mario.dash = 0
+        print('dashing: '+ str(mario.dash))
         pass
 
     def do(mario):
@@ -171,20 +189,22 @@ class DashState:
         else:
             mario.frame = (mario.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
         mario.x += mario.speed * game_framework.frame_time * 2
-        mario.x = clamp(25, mario.x, 576 - 25) #350
+        mario.x = clamp(25, mario.x, 350) # 576 - 25
+        if mario.jumping == 1:
+            mario.jump()
 
     def draw(mario):
         if mario.dir == 1:
             if mario.state == 1:
                 mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
             elif mario.state == 2:
-                mario.image.clip_draw(int(mario.frame) * 16, 32, 16, 24, mario.x, mario.y)
+                mario.image.clip_draw(int(mario.frame) * 16, 0, 16, 24, mario.x, mario.y)
         else:
             if mario.state == 1:
                 mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
             elif mario.state == 2:
-                mario.image.clip_composite_draw(int(mario.frame) * 16, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
-
+                mario.image.clip_composite_draw(int(mario.frame) * 16, 0, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
+"""
 class JumpState: # needed
 
     def enter(mario, event):
@@ -212,13 +232,13 @@ class JumpState: # needed
             mario.image.clip_draw(48, 32, 16, 24, mario.x, mario.y)
         else:
             mario.image.clip_composite_draw(48, 32, 16, 24, 0, 'h', mario.x, mario.y, 16, 24)
-
+"""
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState, JUMP_DOWN: IdleState, JUMP_UP: IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, DASH_UP: RunState, JUMP_DOWN: RunState, JUMP_UP: RunState},
-    DashState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: DashState, JUMP_UP: DashState},
-    JumpState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: JumpState, JUMP_UP: JumpState}
+    DashState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: DashState, JUMP_UP: DashState}
+    # JumpState: {DASH_UP: RunState, LEFT_UP: IdleState, LEFT_DOWN: IdleState, RIGHT_UP: IdleState, RIGHT_DOWN: IdleState, DASH_DOWN: DashState, JUMP_DOWN: JumpState, JUMP_UP: JumpState}
         # {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState, LEFT_DOWN: RunState, DASH_DOWN: IdleState, DASH_UP: IdleState, JUMP_DOWN: JumpState, JUMP_UP: IdleState}
 }
 
@@ -227,7 +247,7 @@ next_state_table = {
 
 class Mario:
     def __init__(self):
-        self.x, self.y = 100, 43  # world + 3
+        self.x, self.y = 100, 150  # world + 3 = 43
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/mario_new_sprite.png')
         self.frame = 0
@@ -235,16 +255,40 @@ class Mario:
         self.prevdir = 0
         self.speed = 0
         self.jumping = 0
-        self.falling = 0
+        self.falling = 1
         self.gravity = 70
         self.yacc = 0
         self.state = 2 # 0 : dead, 1 : small, 2 : big(fire)
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
+        self.jtimer = 1.5
+        self.dash = 0
+        self.jump_sound = load_wav('assets/smb_jump-small.wav')
+        self.jump_sound.set_volume(32)
+        self.stomp_sound = load_wav('assets/smb_stomp.wav')
+        self.stomp_sound.set_volume(32)
+        self.fb_sound = load_wav('assets/smb_fireball.wav')
+        self.fb_sound.set_volume(32)
+        self.item_appear_sound = load_wav('assets/smb_powerup_appears.wav')
+        self.item_appear_sound.set_volume(32)
+        self.item_acquire_sound = load_wav('assets/smb_powerup.wav')
+        self.item_acquire_sound.set_volume(32)
+        self.power_down_sound = load_wav('assets/smb_pipe.wav')
+        self.power_down_sound.set_volume(32)
+        self.idiot_sound = load_music('assets/idiotsfx.mp3')
 
-    def jump(self):
 
+    def jump(self): #
+        self.jump_sound.play()
+        self.falling = 0
+        self.ay = self.y
+        self.y += FALL_SPEED_PPS * game_framework.frame_time * 2
+        self.jtimer -= game_framework.frame_time * 5
+        if self.jtimer <= 0:
+            self.jumping = 0
+            self.falling = 1
+        """
         if self.y >= 40:
             if self.jumping == 1:
                 self.yacc = self.gravity
@@ -256,7 +300,7 @@ class Mario:
             self.y = 40
             self.jumping = 0
         self.jumping = 0
-
+        """
         pass
 
     def get_bb(self):
@@ -279,55 +323,77 @@ class Mario:
             self.cur_state.enter(self, event)
         if self.falling == 1:
             self.y -= FALL_SPEED_PPS * game_framework.frame_time
+            self.jtimer = 1.5
             # print('mario is falling')
         # elif self.falling == 0 and self.jumping == 1:
         #     self.ay = self.y
         #     self.y += FALL_SPEED_PPS * game_framework.frame_time
         #     if self.y == self.ay + 50:
         #         self.jumping = 0
+        if self.y <= 0:
+            self.state = 0
 
-        if collision.collide(self, server.goomba):
+        # if collision.collide(self, server.block):
+        #     if self.y - 12 >= server.block.y:  # mario is above
+        #         self.y = server.block.y + 19
+        #         self.falling = 0
+        #         pass
+        #     elif server.block.y >= self.y + 12:  # mario is below
+        #         self.y = server.block.y - 24
+        #         self.jumping = 0
+        #         self.falling = 1
+        #         if server.block.state == 1:
+        #             server.block.state = 0
+        #         pass
+        #     elif self.x >= server.block.x:  # mario is right
+        #         # server.mario.x += server.mario.speed * game_framework.frame_time
+        #         self.x = server.block.x + 16
+        #         pass
+        #     elif server.block.x >= self.x:  # mario is left
+        #         # server.mario.x -= server.mario.speed * game_framework.frame_time
+        #         self.x = server.block.x - 16
+        #         pass
+        if collision.collide(self, server.goomba): #
             if self.jumping == 1 or self.falling == 1:
                 server.goomba.state = 0
                 self.y += 20
+                self.stomp_sound.play()
             else:
                 if self.state == 1:
                     self.state = 0
                 else:
                     self.state = 1
-
-        elif collision.collide(self, server.hbro):
+                    self.power_down_sound.play()
+        elif collision.collide(self, server.hbro): #
             if self.jumping == 1 or self.falling == 1:
                 server.hbro.state -= 1
                 self.y += 20
+                self.stomp_sound.play()
             else:
                 if self.state == 1:
                     self.state = 0
                 else:
                     self.state = 1
+                    self.power_down_sound.play()
         elif collision.collide(self, server.bowser):
             if self.state == 1:
                 self.state = 0
             else:
                 self.state = 1
-        # add items
-        # elif collision.collide(self, server.mushroom):
-        #     self.state = 2
-        #     pass
-
-        # if collision.collide(self, server.block):
-        #     pass
-
-        if collision.collide(self, server.world):
-            server.mario.y = 43
-            server.mario.falling = 0
+                self.power_down_sound.play()
         else:
-            server.mario.falling = 1
+            # self.falling = 1
+            pass
+
+        #clear mission->axe
 
         if self.state == 0:
             print('mario is dead')
+            self.idiot_sound.play()
+            game_framework.change_state(idiot)
 
         # print('mario y:', self.y)
+        print('falling: '+str(self.falling)+', jumping: '+str(self.jumping))
 
     def draw(self):
         self.cur_state.draw(self)
@@ -339,6 +405,11 @@ class Mario:
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
+
+    def scroll(self):
+        if self.x > 350 and self.speed >0:
+            pass
+        pass
 
 if __name__ == '__main__':
     main()

@@ -29,10 +29,12 @@ FALL_SPEED_MPS = (FALL_SPEED_MPM / 60.0) #METER PER SECOND
 FALL_SPEED_PPS = (FALL_SPEED_MPS * PIXEL_PER_METER) #pixel per second
 
 class Mushroom:
-    def __init__(self):
-        self.x, self.y = 240, 40
+    image = None
+    def __init__(self, x = 100, y = 100):
+        self.x, self.y = x, y
         self.ax, self.ay = self.x, self.y
-        self.image = load_image('assets/goomba_sprite.png')
+        if Mushroom.image == None:
+            Mushroom.image = load_image('assets/mushroom_sprite.png')
         self.frame = 0
         self.dir = -1
         self.falling = 0
@@ -40,25 +42,36 @@ class Mushroom:
         self.yacc = 0
         self.speed = 0
         self.state = 1
+        self.powerup_sound = load_wav('assets/smb_powerup.wav')
 
     def get_bb(self):
         # fill here
         return self.x - 8, self.y - 8, self.x + 8, self.y + 8
 
     def draw(self):
-        if self.dir == 1:
-            self.image.clip_composite_draw(int(self.frame) * 16, 0, 16, 16, 0, 'h', self.x, self.y, 16, 16)
-
-        elif self.dir == -1:
-            self.image.clip_draw(int(self.frame) * 16, 0, 16, 16, self.x, self.y)
+        self.image.draw(self.x, self.y)
 
     def update(self):
-        if self.dir == -1:
-            self.x -= RUN_SPEED_PPS * game_framework.frame_time
-        else:
-            self.x += RUN_SPEED_PPS * game_framework.frame_time
-        self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
-        self.y -= FALL_SPEED_PPS * game_framework.frame_time
+        if self.y <= 0:
+            self.state = 0
+
         if self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1
+        else:
+            if collision.collide(self, server.mario): #
+                if server.mario.state == 1:
+                    server.mario.state = 2
+                    self.state = 0
+                else:
+                    self.state = 0
+            pass
+
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
+            else:
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass

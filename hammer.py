@@ -24,6 +24,7 @@ class Hammer:
             Hammer.image = load_image('assets/hammer_sprite.png')
         self.x, self.y, self.velocity = x, y, velocity
         self.frame = 0
+        self.state = 1
 
     def get_bb(self):
         # fill here
@@ -39,11 +40,25 @@ class Hammer:
         self.x += self.velocity
         self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
         if self.x < 25 or self.x > 1600 - 25:
+            self.state = 0
+        if self.state == 0:
             game_world.remove_object(self)
-        if collision.collide(self, server.mario):
-            if server.mario.state == 1:
-                server.mario.state = 0
-            else:
-                server.mario.state = 1
-            print('mario hit by hammer')
+            self.x, self.y = -1, -1
+        else:
+            if collision.collide(self, server.mario):
+                if server.mario.state == 1:
+                    server.mario.state = 0
+                    self.state = 0
+                else:
+                    server.mario.state = 1
+                    self.state = 0
+                print('mario hit by hammer')
 
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
+            else:
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass

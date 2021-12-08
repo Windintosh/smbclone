@@ -40,11 +40,29 @@ def enter():
     server.bowser = Bowser(random.randint(10, 30), random.randint(5, 20))
     game_world.add_object(server.bowser, 1)
 
-    server.block = Block(random.randint(1, 30), random.randint(5, 20))
-    game_world.add_object(server.block, 1)
+    # for i in range(5, 15):
+    #     server.block = Block(i, 3)
+    #     game_world.add_object(server.block, 1)
 
-    server.itemblock = Itemblock(random.randint(1, 30), random.randint(1, 20))
+    for i in range(69): # total length of level = 211 blocks
+        server.block = Block(i, 1)
+        game_world.add_object(server.block, 1)
+
+    server.itemblock = Itemblock(17, 5)
     game_world.add_object(server.itemblock, 1)
+
+    for i in range(21, 27, 2):
+        server.block = Block(i, 5)
+        game_world.add_object(server.block, 1)
+
+    for i in range(22, 26, 2):
+        server.itemblock = Itemblock(i, 5)
+        game_world.add_object(server.itemblock, 1)
+
+    server.itemblock = Itemblock(23, 9)
+    game_world.add_object(server.itemblock, 1)
+
+
 
 
     server.fb = Fireball()
@@ -74,6 +92,7 @@ def handle_events():
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
+        game_object.scroll()
     # fill here
     # delay(0.01)
     #collision  ->move to individuals

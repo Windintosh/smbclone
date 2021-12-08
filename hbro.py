@@ -48,6 +48,7 @@ class Hbro:
         self.speed = 0
         self.htimer = 1
         self.build_behavior_tree()
+        self.fire_sound = load_wav('assets/smb_bowserfire.wav')
 
     def get_bb(self):
         # fill here
@@ -71,12 +72,13 @@ class Hbro:
                 pass
             self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 2
             self.y -= FALL_SPEED_PPS * game_framework.frame_time
-
+            if self.y <= 0:
+                self.state = 0
         elif self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1
 
-    def throw_hammer(self):
+    def throw_hammer(self): #sound
         self.htimer -= game_framework.frame_time
         if self.htimer <= 0:
             self.htimer = random.randint(1, 2)
@@ -116,3 +118,12 @@ class Hbro:
         hbro_behavior.add_children(find_player_node, throw_hammer_node)
 
         self.bt = BehaviorTree(hbro_behavior)
+
+    def scroll(self):
+        if server.mario.x >= 350 and server.mario.speed >0:
+            if server.mario.dash ==1:
+                self.x -= server.mario.speed * game_framework.frame_time * 2
+            else:
+                self.x -= server.mario.speed * game_framework.frame_time
+            pass
+        pass
