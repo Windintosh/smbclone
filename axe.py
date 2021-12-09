@@ -8,7 +8,7 @@ import main_state
 import title_state
 import world
 
-class Axe:
+class Axe: #
     image = None
     def __init__(self, l, h):
         self.left = l
