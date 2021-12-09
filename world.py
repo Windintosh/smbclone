@@ -7,13 +7,14 @@ import game_framework
 
 class World:
     def __init__(self): #
-        self.image = load_image('assets/bg_sky.png')
+        self.image = load_image('assets/background_sky.png')
         self.x, self.y = 0, 0
         self.canvas_width = get_canvas_width()
         self.canvas_height = get_canvas_height()
         self.w = self.image.w
         self.h = self.image.h
         self.bgm = load_music('assets/smb_metal.mp3')
+        self.bgm.set_volume(100)
         self.bgm.repeat_play()
 
     def update(self):
@@ -32,7 +33,8 @@ class World:
         # if collision.collide(self, server.mushroom):
         #     server.mushroom.y = 40
     def draw(self):
-        self.image.clip_draw(576//2, 432//2, 576, 432, 0, 0)
+        self.image.draw(get_canvas_width() // 2, get_canvas_height() // 2)
+        # self.image.clip_draw(576//2, 432//2, 576, 432, 0, 0)
         # self.image.clip_draw_to_origin(self.window_left, self.window_bottom, server.world.canvas_width,
         #                                server.world.canvas_height, 0, 0)
         # draw_rectangle(0, 0, 2500, 31)

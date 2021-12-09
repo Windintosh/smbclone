@@ -2,6 +2,7 @@ from pico2d import *
 import collision
 import game_framework
 import game_world
+import main_state
 import title_state
 import world
 import goomba
@@ -55,20 +56,23 @@ class Block:
                     server.mario.falling = 0
                     pass
                 elif self.y >= server.mario.y + 12:  # mario is below
-                    server.mario.y = self.y - 12
-                    server.mario.jumping = 0
-                    server.mario.falling = 1
-                    self.state = 0
+                    if server.mario.jumping == 1:
+                        server.mario.y = self.y - 12
+                        server.mario.jumping = 0
+                        server.mario.falling = 1
+                        self.state = 0
                     pass
                 elif server.mario.x >= self.x:  # mario is right
                     # server.mario.x += server.mario.speed * game_framework.frame_time
+                    server.mario.bump = 1
                     server.mario.x = self.x + 16
                     pass
                 elif self.x >= server.mario.x:  # mario is left
                     # server.mario.x -= server.mario.speed * game_framework.frame_time
+                    server.mario.bump = 1
                     server.mario.x = self.x - 16
                     pass
-            elif collision.collide(self, server.goomba):
+            if collision.collide(self, server.goomba):
                 if server.goomba.y - 12 >= self.y:  # goomba is above
                     server.goomba.y = self.y + 19
                     server.goomba.falling = 0
@@ -85,7 +89,7 @@ class Block:
                     server.goomba.dir = server.goomba.dir * -1
                     pass
                 pass
-            elif collision.collide(self, server.koopa):
+            if collision.collide(self, server.koopa):
                 if server.koopa.y - 12 >= self.y:  # koopa is above
                     server.koopa.y = self.y + 19
                     server.koopa.falling = 0
@@ -102,7 +106,7 @@ class Block:
                     server.koopa.dir = server.koopa.dir * -1
                     pass
                 pass
-            elif collision.collide(self, server.hbro):
+            if collision.collide(self, server.hbro):
                 if server.hbro.y - 12 >= self.y:  # hbro is above
                     server.hbro.y = self.y + 19
                     server.hbro.falling = 0
@@ -117,7 +121,57 @@ class Block:
                     server.hbro.x = self.x - 16
                     pass
                 pass
-            elif collision.collide(self, server.bowser):
+            if main_state.level == 2:
+                if collision.collide(self, server.goomba2):
+                    if server.goomba2.y - 12 >= self.y:  # goomba is above
+                        server.goomba2.y = self.y + 19
+                        server.goomba2.falling = 0
+                        pass
+                    elif self.y >= server.goomba2.y + 12:  # goomba is below
+                        server.goomba2.y = self.y - 12
+                        pass
+                    elif server.goomba2.x >= self.x:  # goomba is right
+                        server.goomba2.x = self.x + 16
+                        server.goomba2.dir = server.goomba2.dir * -1
+                        pass
+                    elif self.x >= server.goomba2.x:  # goomba is left
+                        server.goomba2.x = self.x - 16
+                        server.goomba2.dir = server.goomba2.dir * -1
+                        pass
+                    pass
+                if collision.collide(self, server.koopa2):
+                    if server.koopa2.y - 12 >= self.y:  # koopa is above
+                        server.koopa2.y = self.y + 19
+                        server.koopa2.falling = 0
+                        pass
+                    elif self.y >= server.koopa2.y + 12:  # koopa is below
+                        server.koopa2.y = self.y - 12
+                        pass
+                    elif server.koopa2.x >= self.x:  # koopa is right
+                        server.koopa2.x = self.x + 16
+                        server.koopa2.dir = server.koopa2.dir * -1
+                        pass
+                    elif self.x >= server.koopa2.x:  # koopa is left
+                        server.koopa2.x = self.x - 16
+                        server.koopa2.dir = server.koopa2.dir * -1
+                        pass
+                    pass
+                if collision.collide(self, server.hbro2):
+                    if server.hbro2.y - 12 >= self.y:  # hbro is above
+                        server.hbro2.y = self.y + 19
+                        server.hbro2.falling = 0
+                        pass
+                    elif self.y >= server.hbro2.y + 12:  # hbro is below
+                        server.hbro2.y = self.y - 12
+                        pass
+                    elif server.hbro2.x >= self.x:  # hbro is right
+                        server.hbro2.x = self.x + 16
+                        pass
+                    elif self.x >= server.hbro2.x:  # hbro is left
+                        server.hbro2.x = self.x - 16
+                        pass
+                        pass
+            if collision.collide(self, server.bowser):
                 if server.bowser.y - 12 >= self.y:  # bowser is above
                     server.bowser.y = self.y + 19
                     server.bowser.falling = 0

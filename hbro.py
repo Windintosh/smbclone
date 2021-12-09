@@ -5,6 +5,7 @@ import game_world
 import random
 from BehaviorTree import BehaviorTree, SelectorNode, SequenceNode, LeafNode
 import server
+import collision
 
 PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
 RUN_SPEED_KMH = 10.0 # kmh
@@ -74,6 +75,22 @@ class Hbro:
             self.y -= FALL_SPEED_PPS * game_framework.frame_time
             if self.y <= 0:
                 self.state = 0
+            if collision.collide(self, server.block):
+                if self.y - 12 >= server.block.y:
+                    self.y = server.block.y + 19
+                    self.falling = 0
+                    pass
+                elif server.block.y >= self.y + 12:
+                    self.y = server.block.y - 24
+                    self.jumping = 0
+                    self.falling = 1
+                    pass
+                elif self.x >= server.block.x:
+                    self.x = server.block.x + 16
+                    pass
+                elif server.block.x >= self.x:
+                    self.x = server.block.x - 16
+                    pass
         elif self.state == 0:
             game_world.remove_object(self)
             self.x, self.y = -1, -1

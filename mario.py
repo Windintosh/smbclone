@@ -3,15 +3,7 @@ from pico2d import *
 import collision
 import game_framework
 import game_world
-import title_state
-import world
-import goomba
-import koopa
-import hbro
-import bowser
-import block
-import itemblock
-import mushroom
+import main_state
 import server
 import idiot
 from hammer import Hammer
@@ -247,7 +239,7 @@ next_state_table = {
 
 class Mario:
     def __init__(self):
-        self.x, self.y = 100, 150  # world + 3 = 43
+        self.x, self.y = 50, 200  # world + 3 = 43
         self.ax, self.ay = self.x, self.y
         self.image = load_image('assets/mario_new_sprite.png')
         self.frame = 0
@@ -264,19 +256,21 @@ class Mario:
         self.cur_state.enter(self, None)
         self.jtimer = 1.5
         self.dash = 0
+        self.bump = 0
         self.jump_sound = load_wav('assets/smb_jump-small.wav')
         self.jump_sound.set_volume(32)
         self.stomp_sound = load_wav('assets/smb_stomp.wav')
-        self.stomp_sound.set_volume(32)
+        # self.stomp_sound.set_volume(32)
         self.fb_sound = load_wav('assets/smb_fireball.wav')
-        self.fb_sound.set_volume(32)
+        # self.fb_sound.set_volume(32)
         self.item_appear_sound = load_wav('assets/smb_powerup_appears.wav')
-        self.item_appear_sound.set_volume(32)
+        # self.item_appear_sound.set_volume(32)
         self.item_acquire_sound = load_wav('assets/smb_powerup.wav')
-        self.item_acquire_sound.set_volume(32)
+        # self.item_acquire_sound.set_volume(32)
         self.power_down_sound = load_wav('assets/smb_pipe.wav')
-        self.power_down_sound.set_volume(32)
+        # self.power_down_sound.set_volume(32)
         self.idiot_sound = load_music('assets/idiotsfx.mp3')
+        self.clear_music = load_wav('assets/smb_world_clear.wav')
 
 
     def jump(self): #
@@ -324,6 +318,8 @@ class Mario:
         if self.falling == 1:
             self.y -= FALL_SPEED_PPS * game_framework.frame_time
             self.jtimer = 1.5
+        self.falling = 1
+        self.bump = 0
             # print('mario is falling')
         # elif self.falling == 0 and self.jumping == 1:
         #     self.ay = self.y
@@ -360,9 +356,11 @@ class Mario:
                 self.stomp_sound.play()
             else:
                 if self.state == 1:
+                    server.goomba.state = 0
                     self.state = 0
                 else:
                     self.state = 1
+                    server.goomba.state = 0
                     self.power_down_sound.play()
         elif collision.collide(self, server.hbro): #
             if self.jumping == 1 or self.falling == 1:

@@ -3,6 +3,7 @@ from pico2d import *
 import collision
 import game_world
 import game_framework
+import main_state
 import server
 
 FB_PIXEL_PER_METER = (10.0 / 0.3) # 10pixel 당 30cm
@@ -61,6 +62,19 @@ class Fireball:
                 server.bowser.hp -= 1
                 self.state = 0
                 print('hit bowser')
+            if main_state.level == 2:
+                if collision.collide(self, server.goomba2):
+                    server.goomba2.state = 0
+                    self.state = 0
+                    print('hit goomba2')
+                elif collision.collide(self, server.koopa2):
+                    server.koopa2.state = 0
+                    self.state = 0
+                    print('hit koopa2')
+                elif collision.collide(self, server.hbro2):
+                    server.hbro2.state = 0
+                    self.state = 0
+                    print('hit hammer bro2')
 
     def scroll(self):
         if server.mario.x >= 350 and server.mario.speed >0:
